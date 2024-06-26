@@ -1,14 +1,6 @@
-<!doctype html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    {% load static %}
+{% extends "forsale/forsale.html" %}
 
-    <link rel="stylesheet" href="{% static 'forsale/style.css' %}">
-
-    <title>Categories</title>
-  </head>
-  <body>
+{% block content %}
     <h1>Categories</h1>
     <p>Select a category to view items available.</p>
     <table>
@@ -23,10 +15,4 @@
         </tr>
       {% endfor %}
     </table>
-    {% include 'forsale/signinout.html' %}
-    {# TODO remove #}
-    {% if debug %}
-      <p>Debug: {{ debug }}</p>
-    {% endif %}
-  </body>
-</html>
+{% endblock %}

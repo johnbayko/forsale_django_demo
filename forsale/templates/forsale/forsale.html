@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'forsale/style.css' %}">
+
+    <title>Categories</title>
+  </head>
+  <body>
+    <div id="header" style="background-color:{{ highlight_bg_color }}">
+    <h1>Forsale: A Fancy Site</h1>
+    </div>
+
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <div id="footer">
+      {% include 'forsale/signinout.html' %}
+      {# TODO remove #}
+      {% if debug %}
+        <p>Debug: {{ debug }}</p>
+      {% endif %}
+    </div>
+  </body>
+</html>
+
