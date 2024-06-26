@@ -23,5 +23,10 @@
         </tr>
       {% endfor %}
     </table>
+    {% include 'forsale/signinout.html' %}
+    {# TODO remove #}
+    {% if debug %}
+      <p>Debug: {{ debug }}</p>
+    {% endif %}
   </body>
 </html>

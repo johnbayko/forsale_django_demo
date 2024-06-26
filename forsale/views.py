@@ -4,20 +4,24 @@ from django.template import loader
 
 from .models import Categories
 
-# TODO for development
-is_signed_in = False
-
 # Add colours:
 #
 # highlight_bg_color: background for divisions, headings.
 #     Indicates signed in status.
 #
 def add_colors(request, context):
-    if is_signed_in:
+
+    if request.user.is_authenticated:
         highlight_bg_color = "#FFA07A" # LightSalmon
+        signinout_bg_color = "#90EE90" # LightGreen
+
+        context["user.username"] = request.user.username
     else:
         highlight_bg_color = "#90EE90" # LightGreen
+        signinout_bg_color = "#FFA07A" # LightSalmon
     context["highlight_bg_color"] = highlight_bg_color
+    context["signinout_bg_color"] = signinout_bg_color
+#    context["debug"] = "username:" + request.user.username
 
 
 def index(request):

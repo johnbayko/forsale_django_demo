@@ -1,0 +1,7 @@
+<div style="background-color:{{ highlight_bg_color }}">
+  {% if user.username %}
+    <p><span style="background-color:{{ signinout_bg_color }}">Sign out</span> username: {{ user.username }}</p>
+  {% else %}
+    <p><span style="background-color:{{ signinout_bg_color }}">Sign in</span></p>
+  {% endif %}
+</div>
