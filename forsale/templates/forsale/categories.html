@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'forsale/style.css' %}">
+
+    <title>Categories</title>
+  </head>
+  <body>
+    <h1>Categories</h1>
+    <p>Select a category to view items available.</p>
+    <table>
+      <tr>
+        <th style="background-color:{{ highlight_bg_color }}">Name</th>
+        <th style="background-color:{{ highlight_bg_color }}">Description</th>
+      </tr>
+      {% for category in categories_list %}
+        <tr>
+          <td>{{ category.name }}</td>
+          <td>{{ category.description }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
