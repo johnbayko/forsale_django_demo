@@ -6,7 +6,7 @@
 
     <link rel="stylesheet" href="{% static 'forsale/style.css' %}">
 
-    <title>Categories</title>
+    <title>Forsale</title>
   </head>
   <body>
     <div id="header" style="background-color:{{ highlight_bg_color }}">
@@ -17,13 +17,11 @@
         {% block content %}{% endblock %}
     </div>
 
-    <div id="footer">
-      {% include 'forsale/signinout.html' %}
-      {# TODO remove #}
-      {% if debug %}
-        <p>Debug: {{ debug }}</p>
-      {% endif %}
-    </div>
+    {# TODO remove #}
+    {% if debug %}
+      <p>Debug: {{ debug }}</p>
+    {% endif %}
+
   </body>
 </html>
 

@@ -12,13 +12,13 @@ from .models import Categories
 def add_colors(request, context):
 
     if request.user.is_authenticated:
-        highlight_bg_color = "#FFA07A" # LightSalmon
+        highlight_bg_color = "#FFD700" # Gold
         signinout_bg_color = "#90EE90" # LightGreen
 
         context["user.username"] = request.user.username
     else:
         highlight_bg_color = "#90EE90" # LightGreen
-        signinout_bg_color = "#FFA07A" # LightSalmon
+        signinout_bg_color = "#FFD700" # Gold
     context["highlight_bg_color"] = highlight_bg_color
     context["signinout_bg_color"] = signinout_bg_color
 #    context["debug"] = "username:" + request.user.username
@@ -37,4 +37,24 @@ def categories(request):
     add_colors(request, context)
 
     return render(request, "forsale/categories.html", context)
+
+
+def signin(request):
+    context = {
+    }
+    add_colors(request, context)
+
+    return render(request, "forsale/signin.html", context)
+
+
+def signin_done(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    context = {
+        "username": username,
+        "password": password,
+    }
+    add_colors(request, context)
+
+    return render(request, "forsale/signin_done.html", context)
 

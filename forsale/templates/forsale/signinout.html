@@ -1,7 +1,20 @@
 <div style="background-color:{{ highlight_bg_color }}">
   {% if user.username %}
-    <p><span style="background-color:{{ signinout_bg_color }}">Sign out</span> username: {{ user.username }}</p>
+    <p>
+      <span style="background-color:{{ signinout_bg_color }}">
+        {# TODO Change to signout #}
+        <a href="{% url 'forsale:signin' %}">
+          Sign out
+        </a>
+      </span> username: {{ user.username }}
+    </p>
   {% else %}
-    <p><span style="background-color:{{ signinout_bg_color }}">Sign in</span></p>
+    <p>
+      <span style="background-color:{{ signinout_bg_color }}">
+        <a href="{% url 'forsale:signin' %}">
+          Sign in
+        </a>
+      </span>
+    </p>
   {% endif %}
 </div>
