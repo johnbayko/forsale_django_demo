@@ -57,6 +57,22 @@ def categories(request):
     return render(request, "forsale/categories.html", context)
 
 
+def items(request, category_id):
+
+
+
+
+
+    items_list = Items.objects.order_by("created")
+
+    context = {
+        "items_list": items_list,
+    }
+    add_context(request, context)
+
+    return render(request, "forsale/items.html", context)
+
+
 def signin(request, origin_url_name):
     context = { }
     add_context(request, context)
@@ -162,6 +178,10 @@ def signup_done(request, origin_url_name):
     # Add a new user.
     try:
         newuser = User.objects.create_user(username, password=password, email=email)
+        # Add user info record.
+        newuserinfo = Userinfo.objects.create(user=newuser, username=username)
+        newuserinfo.save()
+
     except IntegrityError:
         context['signup_error'] = f"User {username} already exists."
         return render(request, "forsale/signup.html", context)
