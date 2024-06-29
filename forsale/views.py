@@ -43,7 +43,7 @@ def add_context(request, context):
 
 
 def index(request):
-    return categories(request)
+    return HttpResponseRedirect(reverse(f"forsale:categories"))
 
 
 def categories(request):
