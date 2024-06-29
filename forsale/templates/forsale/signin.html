@@ -7,7 +7,7 @@
       <p>Error: {{ signin_error }}</p>
     {% endif %}
 
-    <form method="post" autocomplete="on" action="{% url 'forsale:signin_done' origin_url_name %}">
+    <form method="post" autocomplete="on">
       {% csrf_token %}
       <table>
       <tr>
@@ -15,7 +15,7 @@
             <label for="username">Username</label>
           </td>
           <td>
-            <input type="text" id="username" name="username">
+            <input type="text" id="username" name="username" value="{{ username }}">
           </td>
       </tr>
       <tr>
@@ -28,12 +28,18 @@
       </tr>
       </table>
 
-      <input type="submit" value="Sign in">
+      <button type="submit" formaction="{% url 'forsale:signin_done' origin_url_name %}">
+         Sign in
+       </button>
+     <!-- New user should use username and password already entered, so it
+          should also submit using same form but different action. -->
+      <button type="submit" formaction="{% url 'forsale:signup' origin_url_name %}">
+        New user
+      </button>
     </form>
-    {# TODO make submit look like a link too #}
-    {# TODO Add new account link #}
-    <p>
-      <a href="{% url 'forsale:'|add:origin_url_name %}">Cancel</a>
-    </p>
+    <!-- Submit must be a button, so make cancel link a button too. -->
+    <form action="{% url 'forsale:'|add:origin_url_name %}">
+      <input type="submit" value="Cancel">
+    </form>
 {% endblock %}
 

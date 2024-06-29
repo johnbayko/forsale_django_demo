@@ -1,0 +1,140 @@
+username: admin
+password: adminpassword
+
+username: user#
+password: forsale#
+
+"Categories" page
+  + list of categories
+    "Items for category" page
+      + list of items
+        + to "Item" page
+      + Signed in: my items
+        "My items" page
+          + list of user's items
+            + to "Item" page
+          + list of notices: accepted/sold/removed
+            + "Clear notices"
+              -> delete notice records
+            -> deleted after # of days
+          + "Add"
+            "New item" page
+              + Description
+              + Picture
+              + Price
+              + "Add"
+                -> add item records
+                + to "My items" page
+              + "Cancel"
+                + to "My items" page
+          + "All items"
+            + to "Items for category" page
+      + "Categories"
+        + to "Categories" page
+      + include sign in/sign out
+  + include sign in/sign out
+
+Origin:
+  "Categories"
+  "Items for category"
+  "Item"
+"Sign in" page
+  + email
+  + password
+  + error message
+  + "Login"
+    -> authenticate
+    + success: to origin page
+    + Fail: set error message
+  + "Sign up"
+    "Sign up" page
+      + email from previous
+      + password from previous
+      + repeat password
+      + cookies checkbox (ignore for now)
+      + "Sign up"
+        -> Add user records
+        -> authenticate
+        + to origin page
+  + "Change password"
+    + placeholder page
+    + to origin page
+  + "Forgot password"
+    + placeholder page
+    + to origin page
+  + "Cancel"
+    + to origin page
+
+Origin:
+  "Items for category"
+  "My items"
+"Item" page
+  + description
+  + picture
+  + price
+  + Number of offers or sold
+  + Signed in and not sold: "Buy"
+    "Buy" page
+      + address from user.address if specified
+      + "Buy"
+        -> Add offer records
+        -> Update user address if changed
+        + to "Item" page
+  + Not signed in and not sold: disabled buy item and "Sign in to buy"
+  + Signed in and own item: "Remove"
+    -> update notice records for all offers
+    -> Remove item records
+    + to origin page
+  + Signed in and own item: list of Offers
+    + "Offer" page
+      + Date/time
+      + email address
+      + address
+      + "Accept"
+        -> update notice records for all other offers
+        -> update item records to sold
+        "Accepted page
+          + done
+            + to "Item" page
+  + "All items"
+    + to "Items for category" page
+  + Signed in: "My items"
+    + to "My items" page
+  + sign in/sign out
+
+Include: sign in/sign out
+  + Not signed in: "Sign in"
+    to "Sign in" page
+  + Signed in: "Sign out"
+
+
+users:
+  id: (whatever Django uses) required
+  address: string default ""
+
+notice:
+  id: users.id
+  created: timestamp required
+  notice: string required
+
+categories:
+  id: number required
+  name: string required
+
+items:
+  id: number required
+  created: timestamp required
+  owner: users.id required
+  category: categories.id required
+  descriprion: string required
+  picture: binary default null
+  price: number (cents) default 0
+  sold: boolean required default false
+  removed: boolean required default false
+
+offer:
+  user: users.id required
+  item: items.id required
+  created: timestamp required
+
+

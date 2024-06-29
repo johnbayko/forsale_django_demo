@@ -1,10 +1,12 @@
 import os.path
 
+from django.db import IntegrityError
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 
 from .models import Categories
 
@@ -66,16 +68,34 @@ def signin_done(request, origin_url_name):
     context = { }
     add_context(request, context)
 
+    missing_values = [ ]
+
     username = request.POST['username']
+    context['username'] = username
+    if username == '':
+        missing_values.append("Username")
+
     password = request.POST['password']
+    if password == '':
+        missing_values.append("Password")
+
+    if len(missing_values) > 0:
+        context['signin_error'] = \
+            "These values are needed to continue: " + ", ".join(missing_values)
+        return render(request, "forsale/signin.html", context)
+
     user = authenticate(username=username, password=password)
     if user is not None:
-        context["signin_error"] = "user is not None"  # debug
         login(request, user)
         return HttpResponseRedirect(reverse(f"forsale:{origin_url_name}"))
     else:
         # No backend authenticated the credentials
-        context['signin_error'] = "Username or password incorrect"
+        try:
+            User.objects.get(username=username)
+            context['signin_error'] = "Password is incorrect"
+        except User.DoesNotExist:
+            context['signin_error'] = f"No user found with username: {username}"
+
         return render(request, "forsale/signin.html", context)
 
 def signout_done(request, origin_url_name):
@@ -85,5 +105,81 @@ def signout_done(request, origin_url_name):
     context = { }
     add_context(request, context)
 
+    return HttpResponseRedirect(reverse(f"forsale:{origin_url_name}"))
+
+
+def signup(request, origin_url_name):
+    context = {
+        "username": request.POST['username'],
+        "password": request.POST['password'],
+    }
+    add_context(request, context)
+
+    return render(request, "forsale/signup.html", context)
+
+
+def signup_done(request, origin_url_name):
+    context = { }
+    add_context(request, context)
+
+    missing_values = [ ]
+
+    username = request.POST['username']
+    context['username'] = username
+    if username == '':
+        missing_values.append("Username")
+
+    password = request.POST['password']
+    context['password'] = password
+    if password == '':
+        missing_values.append("Password")
+
+    password2 = request.POST['password2']
+    context['password2'] = password2
+    if password2 == '':
+        missing_values.append("Retype password")
+
+    first_name = request.POST['first_name']
+    context['first_name'] = first_name
+
+    last_name = request.POST['last_name']
+    context['last_name'] = last_name
+
+    email = request.POST['email']
+    context['email'] = email
+    if email == '':
+        missing_values.append("Email")
+
+    if len(missing_values) > 0:
+        context['signup_error'] = \
+            "These values are needed to continue: " + ", ".join(missing_values)
+        return render(request, "forsale/signup.html", context)
+
+    if password != password2:
+        context['signup_error'] = "Password wasn't the same both times,"
+        return render(request, "forsale/signup.html", context)
+
+    # Add a new user.
+    try:
+        newuser = User.objects.create_user(username, password=password, email=email)
+    except IntegrityError:
+        context['signup_error'] = f"User {username} already exists."
+        return render(request, "forsale/signup.html", context)
+    except ValueError:
+        context['signup_error'] = f"Username {username} isn't valid."
+        return render(request, "forsale/signup.html", context)
+
+    newuser_changed = False
+    if first_name != "":
+        newuser.first_name = first_name
+        newuser_changed = True
+    if last_name != "":
+        newuser.last_name = last_name
+        newuser_changed = True
+    if newuser_changed:
+        newuser.save()
+
+    # Log in new user.
+    login(request, newuser)
     return HttpResponseRedirect(reverse(f"forsale:{origin_url_name}"))
 
