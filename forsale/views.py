@@ -8,11 +8,11 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
-from .models import Categories
+from .models import Categories, Items, Userinfo
 
 # Add common context for views:
 #
-# origin_url_name: The name of this url path.
+# origin_path: The name of this path.
 #
 # user.username: User name if user is logged in.
 #
@@ -24,9 +24,11 @@ from .models import Categories
 # debug: Optional debug message, must be added to the template to see it.
 #
 def add_context(request, context):
-    # I couldn't find an easier way to get the original page name, so
-    # use last element of the path. Ensure they are the same in urls.py.
-    context["origin_url_name"] = os.path.basename(request.path)
+    # I couldn't find an easier way to get return to the original page, so
+    # add the current path to context, and add that as a parameter when linking
+    # to pages that need to return.
+    if "origin_path" not in context:
+        context["origin_path"] = request.path
 
     if request.user.is_authenticated:
         highlight_bg_color = "#FFD700" # Gold
@@ -39,7 +41,7 @@ def add_context(request, context):
     context["highlight_bg_color"] = highlight_bg_color
     context["signinout_bg_color"] = signinout_bg_color
 # debug
-#    context["debug"] = "debug message"
+#    context["debug"] = context["origin_path"]
 
 
 def index(request):
@@ -58,14 +60,28 @@ def categories(request):
 
 
 def items(request, category_id):
+    category = Categories.objects.get(pk=category_id)
+    if request.user.is_authenticated:
+        user = request.user
+        userinfo = Userinfo.objects.get(user=user)
 
+        non_owner_items_list = \
+            Items.objects \
+                .exclude(owner=userinfo)\
+                .filter(category=category, sold=False, removed=False)
+        owner_items_list = \
+            Items.objects \
+                .filter(owner=userinfo, category=category)
+        items_list = non_owner_items_list.union(owner_items_list)
+    else:
+        items_list = \
+            Items.objects \
+                .filter(category=category, sold=False, removed=False)
 
-
-
-
-    items_list = Items.objects.order_by("created")
 
     context = {
+        "category": category,
+        "origin_param1": category_id,
         "items_list": items_list,
     }
     add_context(request, context)
@@ -73,15 +89,19 @@ def items(request, category_id):
     return render(request, "forsale/items.html", context)
 
 
-def signin(request, origin_url_name):
-    context = { }
+def signin(request, origin_path):
+    context = {
+        "origin_path": origin_path,
+    }
     add_context(request, context)
 
     return render(request, "forsale/signin.html", context)
 
 
-def signin_done(request, origin_url_name):
-    context = { }
+def signin_done(request, origin_path):
+    context = {
+        "origin_path": origin_path,
+    }
     add_context(request, context)
 
     missing_values = [ ]
@@ -103,7 +123,7 @@ def signin_done(request, origin_url_name):
     user = authenticate(username=username, password=password)
     if user is not None:
         login(request, user)
-        return HttpResponseRedirect(reverse(f"forsale:{origin_url_name}"))
+        return HttpResponseRedirect(origin_path)
     else:
         # No backend authenticated the credentials
         try:
@@ -114,18 +134,21 @@ def signin_done(request, origin_url_name):
 
         return render(request, "forsale/signin.html", context)
 
-def signout_done(request, origin_url_name):
+def signout_done(request, origin_path):
     # Logout and return to original page.
     logout(request)
 
-    context = { }
+    context = {
+        "origin_path": origin_path,
+    }
     add_context(request, context)
 
-    return HttpResponseRedirect(reverse(f"forsale:{origin_url_name}"))
+    return HttpResponseRedirect(origin_path)
 
 
-def signup(request, origin_url_name):
+def signup(request, origin_path):
     context = {
+        "origin_path": origin_path,
         "username": request.POST['username'],
         "password": request.POST['password'],
     }
@@ -134,8 +157,10 @@ def signup(request, origin_url_name):
     return render(request, "forsale/signup.html", context)
 
 
-def signup_done(request, origin_url_name):
-    context = { }
+def signup_done(request, origin_path):
+    context = {
+        "origin_path": origin_path,
+    }
     add_context(request, context)
 
     missing_values = [ ]
@@ -201,5 +226,5 @@ def signup_done(request, origin_url_name):
 
     # Log in new user.
     login(request, newuser)
-    return HttpResponseRedirect(reverse(f"forsale:{origin_url_name}"))
+    return HttpResponseRedirect(origin_path)
 

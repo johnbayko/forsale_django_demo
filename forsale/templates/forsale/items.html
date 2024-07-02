@@ -1,0 +1,49 @@
+{% extends "forsale/forsale.html" %}
+
+{% block content %}
+    <h1>Items in {{ category.name }}</h1>
+    <p>Select an item to view details.</p>
+    <table>
+      <tr style="background-color:{{ highlight_bg_color }}">
+        <th>Description</th>
+        <th>Price</th>
+        <th>Owner</th>
+        <th>Status</th>
+      </tr>
+      <!-- Sold or removed items will only be retrieved for owner
+           (when user sidnet in) -->
+      {% for item in items_list %}
+        <tr
+          {% if item.removed %}
+            id="removeditem"
+          {% elif item.sold %}
+            id="solditem"
+          {% else %}
+            id="availableitem"
+          {% endif %}
+        >
+          <td>{{ item.description }}</td>
+          <td>{{ item.price }}</td>
+          <td>
+            {% if item.owner.user.first_name or item.owner.user.last_name %}
+              {{ item.owner.user.first_name }} {{ item.owner.user.last_name }}
+            {% else %}
+              {{ item.owner.username }} {{ item.owner.user.last_name }}
+            {% endif %}
+          </td>
+          <td>
+            {% if item.removed %}
+              Removed
+            {% elif item.sold %}
+              Sold
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+    <p>
+      Go to <A href="{% url "forsale:categories" %}">Categories</a>
+    </p>
+    {% include 'forsale/signinout.html' %}
+{% endblock %}
+

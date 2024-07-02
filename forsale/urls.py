@@ -8,9 +8,9 @@ urlpatterns = [
     path("categories", views.categories, name="categories"),
     path("categories/<int:category_id>/items", views.items, name="items"),
 
-    path("signin/<slug:origin_url_name>", views.signin, name="signin"),
-    path("signin_done/<slug:origin_url_name>", views.signin_done, name="signin_done"),
-    path("signout_done/<slug:origin_url_name>", views.signout_done, name="signout_done"),
-    path("signup/<slug:origin_url_name>", views.signup, name="signup"),
-    path("signup_done/<slug:origin_url_name>", views.signup_done, name="signup_done"),
+    path("signin/<path:origin_path>", views.signin, name="signin"),
+    path("signin_done/<path:origin_path>", views.signin_done, name="signin_done"),
+    path("signout_done/<path:origin_path>", views.signout_done, name="signout_done"),
+    path("signup/<path:origin_path>", views.signup, name="signup"),
+    path("signup_done/<path:origin_path>", views.signup_done, name="signup_done"),
 ]

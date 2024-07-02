@@ -68,13 +68,13 @@
       </table>
 
       <p>
-        <button type="submit" formaction="{% url 'forsale:signup_done' origin_url_name %}">
+        <button type="submit" formaction="{% url 'forsale:signup_done' origin_path %}">
           Add user
         </button>
       </p>
     </form>
     {# Submit must be a button, so make cancel link a button too. #}
-    <form action="{% url 'forsale:'|add:origin_url_name %}">
+    <form action="{% url 'forsale:'|add:origin_path %}">
       <input type="submit" value="Cancel">
     </form>
     {# TODO Add new account link #}

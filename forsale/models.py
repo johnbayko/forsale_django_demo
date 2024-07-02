@@ -19,7 +19,7 @@ class Userinfo(models.Model):
 
 class Items(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-#    owner = models.ForeignKey(Userinfo, on_delete=models.PROTECT)
+    owner = models.ForeignKey(Userinfo, on_delete=models.PROTECT)
     category = models.ForeignKey(Categories, on_delete=models.PROTECT)
     description = models.CharField(max_length=256, blank=True)
 #    picture = models.ImageField(upload_to=)

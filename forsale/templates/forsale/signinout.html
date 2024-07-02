@@ -2,7 +2,7 @@
   {% if user.username %}
     <p>
       <span style="background-color:{{ signinout_bg_color }}">
-        <a href="{% url 'forsale:signout_done' origin_url_name %}">
+        <a href="{% url 'forsale:signout_done' origin_path %}">
           Sign out
         </a>
       </span> username: {{ user.username }}
@@ -10,7 +10,7 @@
   {% else %}
     <p>
       <span style="background-color:{{ signinout_bg_color }}">
-        <a href="{% url 'forsale:signin' origin_url_name %}">
+        <a href="{% url 'forsale:signin' origin_path %}">
           Sign in
         </a>
       </span>

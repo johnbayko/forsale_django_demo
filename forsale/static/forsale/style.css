@@ -9,3 +9,9 @@ th, td {
   text-align:left;
   padding-right: 10px;
 }
+#solditem {
+  background-color: Gold;
+}
+#removeditem {
+  background-color: LightGrey;
+}

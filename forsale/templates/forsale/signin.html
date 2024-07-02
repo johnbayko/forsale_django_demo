@@ -28,17 +28,17 @@
       </tr>
       </table>
 
-      <button type="submit" formaction="{% url 'forsale:signin_done' origin_url_name %}">
+      <button type="submit" formaction="{% url 'forsale:signin_done' origin_path %}">
          Sign in
        </button>
      <!-- New user should use username and password already entered, so it
           should also submit using same form but different action. -->
-      <button type="submit" formaction="{% url 'forsale:signup' origin_url_name %}">
+      <button type="submit" formaction="{% url 'forsale:signup' origin_path %}">
         New user
       </button>
     </form>
     <!-- Submit must be a button, so make cancel link a button too. -->
-    <form action="{% url 'forsale:'|add:origin_url_name %}">
+    <form action="{{ origin_path }}">
       <input type="submit" value="Cancel">
     </form>
 {% endblock %}
