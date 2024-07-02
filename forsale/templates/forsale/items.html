@@ -1,12 +1,13 @@
 {% extends "forsale/forsale.html" %}
 
 {% block content %}
+    {% load forsale_tags %}
     <h1>Items in {{ category.name }}</h1>
     <p>Select an item to view details.</p>
     <table>
       <tr style="background-color:{{ highlight_bg_color }}">
         <th>Description</th>
-        <th>Price</th>
+        <th id="price">Price</th>
         <th>Owner</th>
         <th>Status</th>
       </tr>
@@ -23,7 +24,7 @@
           {% endif %}
         >
           <td>{{ item.description }}</td>
-          <td>{{ item.price }}</td>
+          <td id="price">{{ item.price|format_cents }}</td>
           <td>
             {% if item.owner.user.first_name or item.owner.user.last_name %}
               {{ item.owner.user.first_name }} {{ item.owner.user.last_name }}

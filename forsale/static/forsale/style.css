@@ -9,6 +9,9 @@ th, td {
   text-align:left;
   padding-right: 10px;
 }
+#price {
+  text-align:right;
+}
 #solditem {
   background-color: Gold;
 }
