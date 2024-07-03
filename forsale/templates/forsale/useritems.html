@@ -1,0 +1,98 @@
+{% extends "forsale/forsale.html" %}
+
+{% block content %}
+    {% load forsale_tags %}
+    <h1>Items for {{ user_fullname }}</h1>
+    <p>Select an item to view details.</p>
+    <table>
+      <tr style="background-color:{{ highlight_bg_color }}">
+        <th>Category</th>
+        <th>Description</th>
+        <th id="price">Price</th>
+        <th>Status</th>
+      </tr>
+      <!-- Sold or removed items will only be retrieved for owner
+           (when user signed in) -->
+      {% for item in items_list %}
+        <tr
+          {% if item.removed %}
+            id="removeditem"
+          {% elif item.sold %}
+            id="solditem"
+          {% else %}
+            id="availableitem"
+          {% endif %}
+        >
+          <td>{{ item.category.name }}</td>
+          <td>{{ item.description }}</td>
+          <td id="price">{{ item.price|format_cents }}</td>
+          <td>
+            {% if item.removed %}
+              Removed
+            {% elif item.sold %}
+              Sold
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+    {% if user_username %}
+      <form method="GET">
+        {% csrf_token %}
+        {% if not refreshed_view %}
+          <!-- If this is the first view, use default values -->
+          <input
+            type="hidden"
+            id="refreshed_view"
+            name="refreshed_view"
+            value="refreshed_view"
+          >
+        {% endif %}
+        <div style="display:flex;flex-direction:row">
+          <div style="display:flex;flex-direction:column">
+            <button type="submit" formaction="{{ origin_path }}">
+              Update list
+            </button>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <div>
+              <input
+                type="checkbox"
+                id="show_sold"
+                name="show_sold"
+                value="show"
+                autocomplete="on"
+                {% if show_sold %}
+                  checked
+                {% endif %}
+              >
+              <label for="show_sold">
+                Show sold items
+              </label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="show_removed"
+                name="show_removed"
+                value="show"
+                autocomplete="on"
+                {% if show_removed %}
+                  checked
+                {% endif %}
+              >
+              <label for="show_removed">
+                Show removed items
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
+    {% endif %}
+    <p>
+      Go to <A href="{% url "forsale:categories" %}">Categories</a>
+    </p>
+    {% include 'forsale/signinout.html' %}
+{% endblock %}
+
+

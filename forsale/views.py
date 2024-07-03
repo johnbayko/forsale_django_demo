@@ -133,6 +133,47 @@ def items(request, category_id):
     return render(request, "forsale/items.html", context)
 
 
+def useritems(request, user_id):
+    if not request.user.is_authenticated:
+        # Apparently signed out while looking at this.
+        return HttpResponseRedirect(reverse(f"forsale:categories"))
+
+    user = request.user
+    userinfo = Userinfo.objects.get(user=user)
+
+    context = {
+        "user": user
+    }
+
+    refreshed_view = "refreshed_view" in request.GET
+
+    if not refreshed_view:
+        # First view, use defaults
+        show_sold = True
+        show_removed = True
+    else:
+        show_sold = "show_sold" in request.GET
+        show_removed = "show_removed" in request.GET
+
+    if show_sold:
+        print('show_sold')  # debug
+        context["show_sold"] = "show_sold"
+    if show_removed:
+        print('show_removed')  # debug
+        context["show_removed"] = "show_removed"
+
+    items_list = Items.objects.filter(owner=userinfo)
+    if not show_sold:
+        items_list = items_list.filter(sold=False)
+    if not show_removed:
+        items_list = items_list.filter(removed=False)
+    context["items_list"] = items_list
+
+    add_context(request, context)
+
+    return render(request, "forsale/useritems.html", context)
+
+
 def signin(request, origin_path):
     context = {
         "origin_path": origin_path,

@@ -19,5 +19,10 @@
         </tr>
       {% endfor %}
     </table>
+    {% if user_username %}
+      <a href="{% url "forsale:useritems" user.id %}">
+        All items for {{ user_fullname }}
+      </a>
+    {% endif %}
     {% include 'forsale/signinout.html' %}
 {% endblock %}
