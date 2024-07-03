@@ -1,11 +1,12 @@
 <div style="background-color:{{ highlight_bg_color }}">
-  {% if user.username %}
+  {% if user_username %}
     <p>
+      Signed in as: {{ user_fullname }}
       <span style="background-color:{{ signinout_bg_color }}">
         <a href="{% url 'forsale:signout_done' origin_path %}">
           Sign out
         </a>
-      </span> username: {{ user.username }}
+      </span>
     </p>
   {% else %}
     <p>

@@ -14,7 +14,7 @@ from .models import Categories, Items, Userinfo
 #
 # origin_path: The name of this path.
 #
-# user.username: User name if user is logged in.
+# user_username: User name if user is logged in.
 #
 # highlight_bg_color: background for divisions, headings.
 #     Indicates signed in status.
@@ -34,7 +34,21 @@ def add_context(request, context):
         highlight_bg_color = "#FFD700" # Gold
         signinout_bg_color = "#90EE90" # LightGreen
 
-        context["user.username"] = request.user.username
+        context["user_username"] = request.user.username
+
+        namelist = []
+        if request.user.first_name != '':
+            namelist.append(request.user.first_name)
+
+        if request.user.last_name != '':
+            namelist.append(request.user.last_name)
+
+        if len(namelist) == 0:
+            # No actual name, use username.
+            namelist.append(request.user.username)
+
+        context["user_fullname"] = " ".join(namelist)
+
     else:
         highlight_bg_color = "#90EE90" # LightGreen
         signinout_bg_color = "#FFD700" # Gold
@@ -61,29 +75,59 @@ def categories(request):
 
 def items(request, category_id):
     category = Categories.objects.get(pk=category_id)
+    context = {
+        "category": category,
+    }
+
+    refreshed_view = "refreshed_view" in request.GET
+
+    if not refreshed_view:
+        # First view, use defaults
+        show_user_only = False
+        show_sold = True
+        show_removed = True
+    else:
+        show_user_only = "show_user_only" in request.GET
+        show_sold = "show_sold" in request.GET
+        show_removed = "show_removed" in request.GET
+
+    if show_user_only:
+        print('show_user_only')  # debug
+        context["show_user_only"] = "show_user_only"
+    if show_sold:
+        print('show_sold')  # debug
+        context["show_sold"] = "show_sold"
+    if show_removed:
+        print('show_removed')  # debug
+        context["show_removed"] = "show_removed"
+
     if request.user.is_authenticated:
         user = request.user
         userinfo = Userinfo.objects.get(user=user)
 
-        non_owner_items_list = \
-            Items.objects \
-                .exclude(owner=userinfo)\
-                .filter(category=category, sold=False, removed=False)
         owner_items_list = \
             Items.objects \
                 .filter(owner=userinfo, category=category)
-        items_list = non_owner_items_list.union(owner_items_list)
+        if not show_sold:
+            owner_items_list = owner_items_list.filter(sold=False)
+        if not show_removed:
+            owner_items_list = owner_items_list.filter(removed=False)
+
+        if show_user_only:
+            items_list = owner_items_list
+        else:
+            # Add in non-owner items, but only not sold or removed.
+            non_owner_items_list = \
+                Items.objects \
+                    .exclude(owner=userinfo)\
+                    .filter(category=category, sold=False, removed=False)
+            items_list = owner_items_list.union(non_owner_items_list)
     else:
         items_list = \
             Items.objects \
                 .filter(category=category, sold=False, removed=False)
+    context["items_list"] = items_list
 
-
-    context = {
-        "category": category,
-        "origin_param1": category_id,
-        "items_list": items_list,
-    }
     add_context(request, context)
 
     return render(request, "forsale/items.html", context)
@@ -121,10 +165,7 @@ def signin_done(request, origin_path):
         return render(request, "forsale/signin.html", context)
 
     user = authenticate(username=username, password=password)
-    if user is not None:
-        login(request, user)
-        return HttpResponseRedirect(origin_path)
-    else:
+    if user is None:
         # No backend authenticated the credentials
         try:
             User.objects.get(username=username)
@@ -133,6 +174,9 @@ def signin_done(request, origin_path):
             context['signin_error'] = f"No user found with username: {username}"
 
         return render(request, "forsale/signin.html", context)
+
+    login(request, user)
+    return HttpResponseRedirect(origin_path)
 
 def signout_done(request, origin_path):
     # Logout and return to original page.
