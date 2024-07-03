@@ -1,0 +1,61 @@
+{% extends "forsale/forsale.html" %}
+
+{% block content %}
+
+<p>Add a new item for sale</p>
+
+<form action="{% url 'forsale:newitem_done' user.id %}" method="POST">
+    {% csrf_token %}
+    {{ newitemform.non_field_errors }}
+    <table>
+      <tr>
+        <td>
+          <label for="{{ newitemform.category.id_for_label }}">Category:</label>
+        </td>
+        <td>
+          {{ newitemform.category }}
+        <td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          {{ newitemform.category.errors }}
+        </td>
+      </tr>
+      <tr>
+        <!-- Description -->
+        <td>
+          <label for="{{ newitemform.description.id_for_label }}">Description:</label>
+        </td>
+        <td>
+          {{ newitemform.description }}
+        <td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          {{ newitemform.description.errors }}
+        </td>
+      </tr>
+      <tr>
+        <!-- Price -->
+        <td>
+          <label for="{{ newitemform.price.id_for_label }}">Price:</label>
+        </td>
+        <td>
+          {{ newitemform.price }}
+        <td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          {{ newitemform.price.errors }}
+        </td>
+      </tr>
+    </table>
+    <input type="submit" value="Add item">
+</form>
+<!-- Submit must be a button, so make cancel link a button too. -->
+<form action="{% url 'forsale:useritems' user.id %}">
+  <input type="submit" value="Cancel">
+</form>
+
+{% endblock %}
+

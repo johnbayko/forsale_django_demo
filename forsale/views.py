@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
+from .forms.ForsaleForms import NewItemForm
 from .models import Categories, Items, Userinfo
 
 # Add common context for views:
@@ -173,6 +174,53 @@ def useritems(request, user_id):
 
     return render(request, "forsale/useritems.html", context)
 
+
+def newitem(request, user_id):
+    if not request.user.is_authenticated:
+        # Apparently signed out while looking at this.
+        return HttpResponseRedirect(reverse(f"forsale:categories"))
+
+    user = request.user
+    userinfo = Userinfo.objects.get(user=user)
+
+    context = {
+        "user": user,
+        "newitemform": NewItemForm(),
+    }
+    add_context(request, context)
+
+    return render(request, "forsale/newitem.html", context)
+
+
+def newitem_done(request, user_id):
+    if not request.user.is_authenticated:
+        # Apparently signed out while looking at this.
+        return HttpResponseRedirect(reverse(f"forsale:categories"))
+
+    user = request.user
+    userinfo = Userinfo.objects.get(user=user)
+
+    context = {
+        "user": user
+    }
+
+    newitemform = NewItemForm(request.POST)
+    context["newitemform"] = newitemform
+
+    if not newitemform.is_valid():
+        # TODO add error messaging
+        return render(request, "forsale/newitem.html", context)
+
+    # Actually add the item.
+    newitem = Items.objects.create(
+        owner = userinfo,
+        category = newitemform.cleaned_data['category'],
+        description = newitemform.cleaned_data['description'],
+        price = int(newitemform.cleaned_data['price'] * 100),
+        sold = False,
+        removed = False
+    )
+    return HttpResponseRedirect(reverse(f"forsale:useritems", args=[user.id]))
 
 def signin(request, origin_path):
     context = {

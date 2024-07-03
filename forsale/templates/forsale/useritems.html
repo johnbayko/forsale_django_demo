@@ -36,63 +36,63 @@
         </tr>
       {% endfor %}
     </table>
-    {% if user_username %}
-      <form method="GET">
-        {% csrf_token %}
-        {% if not refreshed_view %}
-          <!-- If this is the first view, use default values -->
-          <input
-            type="hidden"
-            id="refreshed_view"
-            name="refreshed_view"
-            value="refreshed_view"
-          >
-        {% endif %}
-        <div style="display:flex;flex-direction:row">
-          <div style="display:flex;flex-direction:column">
-            <button type="submit" formaction="{{ origin_path }}">
-              Update list
-            </button>
+    <form action="{% url 'forsale:newitem' user.id %}" method="GET">
+      <input type="submit" value="New item">
+    </form>
+    <form method="GET">
+      {% csrf_token %}
+      {% if not refreshed_view %}
+        <!-- If this is the first view, use default values -->
+        <input
+          type="hidden"
+          id="refreshed_view"
+          name="refreshed_view"
+          value="refreshed_view"
+        >
+      {% endif %}
+      <div style="display:flex;flex-direction:row">
+        <div style="display:flex;flex-direction:column">
+          <button type="submit" formaction="{{ origin_path }}">
+            Update list
+          </button>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <div>
+            <input
+              type="checkbox"
+              id="show_sold"
+              name="show_sold"
+              value="show"
+              autocomplete="on"
+              {% if show_sold %}
+                checked
+              {% endif %}
+            >
+            <label for="show_sold">
+              Show sold items
+            </label>
           </div>
-          <div style="display:flex;flex-direction:column">
-            <div>
-              <input
-                type="checkbox"
-                id="show_sold"
-                name="show_sold"
-                value="show"
-                autocomplete="on"
-                {% if show_sold %}
-                  checked
-                {% endif %}
-              >
-              <label for="show_sold">
-                Show sold items
-              </label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                id="show_removed"
-                name="show_removed"
-                value="show"
-                autocomplete="on"
-                {% if show_removed %}
-                  checked
-                {% endif %}
-              >
-              <label for="show_removed">
-                Show removed items
-              </label>
-            </div>
+          <div>
+            <input
+              type="checkbox"
+              id="show_removed"
+              name="show_removed"
+              value="show"
+              autocomplete="on"
+              {% if show_removed %}
+                checked
+              {% endif %}
+            >
+            <label for="show_removed">
+              Show removed items
+            </label>
           </div>
         </div>
-      </form>
-    {% endif %}
+      </div>
+    </form>
     <p>
       Go to <A href="{% url "forsale:categories" %}">Categories</a>
     </p>
     {% include 'forsale/signinout.html' %}
 {% endblock %}
-
 

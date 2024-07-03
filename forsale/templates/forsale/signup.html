@@ -74,7 +74,7 @@
       </p>
     </form>
     {# Submit must be a button, so make cancel link a button too. #}
-    <form action="{% url 'forsale:'|add:origin_path %}">
+    <form action="{% url 'forsale:'|add:origin_path %}" method="GET">
       <input type="submit" value="Cancel">
     </form>
     {# TODO Add new account link #}
