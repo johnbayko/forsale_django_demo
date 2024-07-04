@@ -11,7 +11,7 @@
       {% for category in categories_list %}
         <tr>
           <td>
-            <a href="{% url "forsale:items" category.id %}">
+            <a href="{% url "forsale:categoryitems" category.id %}">
               {{ category.name }}
             </a>
           </td>

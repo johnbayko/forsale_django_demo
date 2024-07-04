@@ -74,7 +74,7 @@ def categories(request):
     return render(request, "forsale/categories.html", context)
 
 
-def items(request, category_id):
+def categoryitems(request, category_id):
     category = Categories.objects.get(pk=category_id)
     context = {
         "category": category,
@@ -131,7 +131,7 @@ def items(request, category_id):
 
     add_context(request, context)
 
-    return render(request, "forsale/items.html", context)
+    return render(request, "forsale/categoryitems.html", context)
 
 
 def useritems(request, user_id):
