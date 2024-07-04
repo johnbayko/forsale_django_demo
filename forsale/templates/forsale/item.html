@@ -53,6 +53,21 @@
       {% endif %}
     {% endif %}
   {% endif %}
+  <p>
+    <a href="{% url 'forsale:categoryitems' item.category.id %}">
+      All items for category {{item.category.name }}
+    </a>
+  </p>
+  <p>
+    <a href="{% url 'forsale:useritems' item.owner.user.id %}">
+      All items for {{ user_fullname }}
+    </a>
+  </p>
+  <p>
+    <a href="{% url 'forsale:categories' %}">
+      Categories
+    </a>
+  </p>
   {% include 'forsale/signinout.html' %}
 {% endblock %}
 
