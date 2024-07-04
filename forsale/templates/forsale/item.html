@@ -1,47 +1,58 @@
 {% extends "forsale/forsale.html" %}
 
 {% block content %}
-{% load forsale_tags %}
-
-<table>
-  <tr>
-    <td>Category</td>
-    <td>{{ item.category.name }}</td>
-  </tr>
-  <tr>
-    <td>Description</td>
-    <td>{{ item.description }}</td>
-  </tr>
-  <!-- picture -->
-  <tr>
-    <td>Price</td>
-    <td>{{ item.price|format_cents }}</td>
-  </tr>
-  <tr>
-    <td>Owner</td>
-    <td>{{ owner_fullname }}</td>
-  </tr>
-  <tr>
-    <td>Added</td>
-    <td>{{ item.created|date }}</td>
-  </tr>
-  {% if item.sold %}
-    <tr id="solditem">
-      <td>
-        Sold
-      </td>
-      <td></td>
+  {% load forsale_tags %}
+  <table>
+    <tr>
+      <td>Category</td>
+      <td>{{ item.category.name }}</td>
     </tr>
-  {% endif %}
-  {% if item.removed %}
-    <tr id="removeditem">
-      <td>
-        Removed
-      </td>
-      <td></td>
+    <tr>
+      <td>Description</td>
+      <td>{{ item.description }}</td>
     </tr>
+    <!-- picture -->
+    <tr>
+      <td>Price</td>
+      <td>{{ item.price|format_cents }}</td>
+    </tr>
+    <tr>
+      <td>Owner</td>
+      <td>{{ owner_fullname }}</td>
+    </tr>
+    <tr>
+      <td>Added</td>
+      <td>{{ item.created|date }}</td>
+    </tr>
+    {% if item.sold %}
+      <tr id="solditem">
+        <td>
+          Sold
+        </td>
+        <td></td>
+      </tr>
+    {% endif %}
+    {% if item.removed %}
+      <tr id="removeditem">
+        <td>
+          Removed
+        </td>
+        <td></td>
+      </tr>
+    {% endif %}
+  </table>
+  {% if user %}
+    {% if not item.removed %}
+      {% if user.id == item.owner.user.id %}
+        <form method="POST">
+          {% csrf_token %}
+          <button type="submit" formaction="{% url 'forsale:itemremove' item.id %}">
+            Remove
+          </button>
+        </form>
+      {% endif %}
+    {% endif %}
   {% endif %}
-</table>
-
+  {% include 'forsale/signinout.html' %}
 {% endblock %}
 

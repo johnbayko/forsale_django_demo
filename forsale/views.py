@@ -144,8 +144,19 @@ def item(request, item_id):
         "owner_fullname": name_for_user(item.owner.user),
     }
     add_context(request, context)
+    user = request.user
+    if user.is_authenticated:
+        context["user"] = user
 
     return render(request, "forsale/item.html", context)
+
+
+def itemremove(request, item_id):
+    item = Items.objects.get(pk=item_id)
+    item.removed = True
+    item.save()
+
+    return HttpResponseRedirect(reverse(f"forsale:item", args=[item_id]))
 
 
 def useritems(request, user_id):
