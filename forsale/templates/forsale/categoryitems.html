@@ -23,7 +23,11 @@
             id="availableitem"
           {% endif %}
         >
-          <td>{{ item.description }}</td>
+          <td>
+            <a href="{% url 'forsale:item' item.id %}">
+              {{ item.description }}
+            </a>
+          </td>
           <td id="price">{{ item.price|format_cents }}</td>
           <td>
             {% if item.owner.user.first_name or item.owner.user.last_name %}

@@ -23,8 +23,15 @@
             id="availableitem"
           {% endif %}
         >
-          <td>{{ item.category.name }}</td>
-          <td>{{ item.description }}</td>
+          <td>
+            <a href="{% url 'forsale:categoryitems' item.category.id %}">
+              {{ item.category.name }}
+            </a>
+          </td>
+          <td>
+            <a href="{% url 'forsale:item' item.id %}">
+              {{ item.description }}
+            </a>
           <td id="price">{{ item.price|format_cents }}</td>
           <td>
             {% if item.removed %}

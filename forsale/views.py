@@ -11,6 +11,21 @@ from django.contrib.auth.models import User
 from .forms.ForsaleForms import NewItemForm
 from .models import Categories, Items, Userinfo
 
+def name_for_user(user):
+    namelist = []
+    if user.first_name != '':
+        namelist.append(user.first_name)
+
+    if user.last_name != '':
+        namelist.append(user.last_name)
+
+    if len(namelist) == 0:
+        # No actual name, use username.
+        namelist.append(user.username)
+
+    return " ".join(namelist)
+
+
 # Add common context for views:
 #
 # origin_path: The name of this path.
@@ -36,19 +51,7 @@ def add_context(request, context):
         signinout_bg_color = "#90EE90" # LightGreen
 
         context["user_username"] = request.user.username
-
-        namelist = []
-        if request.user.first_name != '':
-            namelist.append(request.user.first_name)
-
-        if request.user.last_name != '':
-            namelist.append(request.user.last_name)
-
-        if len(namelist) == 0:
-            # No actual name, use username.
-            namelist.append(request.user.username)
-
-        context["user_fullname"] = " ".join(namelist)
+        context["user_fullname"] = name_for_user(request.user)
 
     else:
         highlight_bg_color = "#90EE90" # LightGreen
@@ -132,6 +135,17 @@ def categoryitems(request, category_id):
     add_context(request, context)
 
     return render(request, "forsale/categoryitems.html", context)
+
+
+def item(request, item_id):
+    item = Items.objects.get(pk=item_id)
+    context = {
+        "item": item,
+        "owner_fullname": name_for_user(item.owner.user),
+    }
+    add_context(request, context)
+
+    return render(request, "forsale/item.html", context)
 
 
 def useritems(request, user_id):
