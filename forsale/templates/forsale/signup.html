@@ -9,6 +9,7 @@
 
     <form method="post" autocomplete="on">
       {% csrf_token %}
+      <p>Required:</p>
       <table>
       <tr>
           <td>
@@ -36,6 +37,17 @@
       </tr>
       <tr>
           <td>
+            <u><label for="email">Email</label></u>
+          </td>
+          <td>
+            <input type="text" id="email" name="email" value="{{ email }}">
+          </td>
+      </tr>
+      </table>
+      <p>Optional:</p>
+      <table>
+      <tr>
+          <td>
             Name:
           </td>
           <td>
@@ -59,10 +71,10 @@
       </tr>
       <tr>
           <td>
-            <u><label for="email">Email</label></u>
+            <u><label for="address">Address</label></u>
           </td>
           <td>
-            <input type="text" id="email" name="email" value="{{ email }}">
+            <input type="text" id="address" name="address" value="{{ address }}">
           </td>
       </tr>
       </table>
@@ -74,7 +86,7 @@
       </p>
     </form>
     {# Submit must be a button, so make cancel link a button too. #}
-    <form action="{% url 'forsale:'|add:origin_path %}" method="GET">
+    <form action="{{ origin_path }}" method="GET">
       <input type="submit" value="Cancel">
     </form>
     {# TODO Add new account link #}

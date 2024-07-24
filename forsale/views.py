@@ -356,12 +356,15 @@ def signup_done(request, origin_path):
         context['signup_error'] = "Password wasn't the same both times,"
         return render(request, "forsale/signup.html", context)
 
+    # Address is optional, must be added when buying.
+    address = request.POST['address']
+    context['address'] = address
+
     # Add a new user.
     try:
         newuser = User.objects.create_user(username, password=password, email=email)
         # Add user info record.
-        newuserinfo = Userinfo.objects.create(user=newuser, username=username)
-        newuserinfo.save()
+        newuserinfo = Userinfo.objects.create(user=newuser, username=username, address=address)
 
     except IntegrityError:
         context['signup_error'] = f"User {username} already exists."
