@@ -182,10 +182,8 @@ def useritems(request, user_id):
         show_removed = "show_removed" in request.GET
 
     if show_sold:
-        print('show_sold')  # debug
         context["show_sold"] = "show_sold"
     if show_removed:
-        print('show_removed')  # debug
         context["show_removed"] = "show_removed"
 
     items_list = Items.objects.filter(owner=userinfo)

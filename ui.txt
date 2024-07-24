@@ -4,6 +4,8 @@ password: adminpassword
 username: user#
 password: forsale#
 
+userinfo: https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
+
 "Categories" page
   + list of categories
     "Items for category" page

@@ -38,6 +38,8 @@
               Removed
             {% elif item.sold %}
               Sold
+            {% elif item.offers.count > 0 %}
+              Offers: {{ item.offers.count }}
             {% endif %}
           </td>
         </tr>

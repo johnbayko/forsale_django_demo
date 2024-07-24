@@ -33,3 +33,11 @@ class Items(models.Model):
     sold = models.BooleanField(default=False, null=False)
     removed = models.BooleanField(default=False, null=False)
 
+class Offers(models.Model):
+    item = models.ForeignKey(Items, related_name="offers", on_delete=models.PROTECT)
+    userinfo = models.ForeignKey(Userinfo, on_delete=models.PROTECT)
+
+    price = models.IntegerField()
+
+    accepted = models.BooleanField(default=False, null=False)
+
