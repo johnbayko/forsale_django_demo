@@ -52,6 +52,29 @@
         </form>
       {% endif %}
     {% endif %}
+    {% if item.offers.count > 0 %}
+      <p>Offers:</p>
+      <table>
+        <tr style="background-color:{{ highlight_bg_color }}">
+          <th>Who</th>
+          <th id="price">Price</th>
+          <th>Address</th>
+        </tr>
+        {% for offer in item.offers.all %}
+          <tr>
+            <td>
+              {{ offer.userinfo.display_name }}
+            </td>
+            <td>
+              {{ offer.price|format_cents }}
+            </td>
+            <td>
+              {{ offer.address }}
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% endif %}
   {% endif %}
   <p>
     <a href="{% url 'forsale:categoryitems' item.category.id %}">

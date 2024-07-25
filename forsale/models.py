@@ -19,6 +19,27 @@ class Userinfo(models.Model):
     # Address is optional until buying.
     address = models.CharField(max_length=256, blank=True)
 
+    def display_name(self):
+        user = self.user
+        if user is None:
+            # Could have been deleted. Use stored info.
+            # username now, could be more added.
+            return username
+
+        namelist = []
+        if user.first_name != '':
+            namelist.append(user.first_name)
+
+        if user.last_name != '':
+            namelist.append(user.last_name)
+
+        if len(namelist) == 0:
+            # No actual name, use username.
+            namelist.append(user.username)
+
+        return " ".join(namelist)
+
+
 
 class Items(models.Model):
     created = models.DateTimeField(auto_now_add=True)

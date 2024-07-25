@@ -11,21 +11,6 @@ from django.contrib.auth.models import User
 from .forms.ForsaleForms import NewItemForm
 from .models import Categories, Items, Userinfo
 
-def name_for_user(user):
-    namelist = []
-    if user.first_name != '':
-        namelist.append(user.first_name)
-
-    if user.last_name != '':
-        namelist.append(user.last_name)
-
-    if len(namelist) == 0:
-        # No actual name, use username.
-        namelist.append(user.username)
-
-    return " ".join(namelist)
-
-
 # Add common context for views:
 #
 # origin_path: The name of this path.
@@ -46,12 +31,17 @@ def add_context(request, context):
     if "origin_path" not in context:
         context["origin_path"] = request.path
 
-    if request.user.is_authenticated:
+    user = request.user
+
+    # userinfo should always be 1:1 to user.
+    userinfo = user.userinfo_set.all()[0]
+
+    if user.is_authenticated:
         highlight_bg_color = "#FFD700" # Gold
         signinout_bg_color = "#90EE90" # LightGreen
 
-        context["user_username"] = request.user.username
-        context["user_fullname"] = name_for_user(request.user)
+        context["user_username"] = user.username
+        context["user_fullname"] = userinfo.display_name()
 
     else:
         highlight_bg_color = "#90EE90" # LightGreen
@@ -96,13 +86,10 @@ def categoryitems(request, category_id):
         show_removed = "show_removed" in request.GET
 
     if show_user_only:
-        print('show_user_only')  # debug
         context["show_user_only"] = "show_user_only"
     if show_sold:
-        print('show_sold')  # debug
         context["show_sold"] = "show_sold"
     if show_removed:
-        print('show_removed')  # debug
         context["show_removed"] = "show_removed"
 
     if request.user.is_authenticated:
@@ -141,7 +128,7 @@ def item(request, item_id):
     item = Items.objects.get(pk=item_id)
     context = {
         "item": item,
-        "owner_fullname": name_for_user(item.owner.user),
+        "owner_fullname": item.owner.display_name(),
     }
     add_context(request, context)
     user = request.user
