@@ -61,26 +61,41 @@
           </button>
         </form>
         {% if item.offers.count > 0 %}
-          <p>Offers:</p>
-          <table>
-            <tr style="background-color:{{ highlight_bg_color }}">
-              <th>Who</th>
-              <th id="price">Price</th>
-              <th>Address</th>
-            </tr>
-            {% for offer in item.offers.all %}
-              <tr>
-                <td>
-                  {{ offer.userinfo.display_name }}
-                </td>
-                <td>
-                  {{ offer.price|format_cents }}
-                </td>
-                <td>
-                  {{ offer.address }}
-                </td>
+          <form method="POST">
+            {% csrf_token %}
+            <p>Offers:</p>
+            <table>
+              <tr style="background-color:{{ highlight_bg_color }}">
+                <th></th>
+                <th>Who</th>
+                <th id="price">Price</th>
+                <th>Address</th>
               </tr>
-            {% endfor %}
+              {% for offer in item.offers.all %}
+                <tr>
+                  <td>
+                    {% if offer.accepted %}
+                      Accepted
+                    {% else %}
+                      {% if not accepted_offer %}
+                        <button type="submit" formaction="{% url 'forsale:offeraccept' item.id offer.id %}">
+                          Accept
+                        </button>
+                      {% endif %}
+                    {% endif %}
+                  </td>
+                  <td>
+                    {{ offer.userinfo.display_name }}
+                  </td>
+                  <td>
+                    {{ offer.price|format_cents }}
+                  </td>
+                  <td>
+                    {{ offer.address }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </form>
           </table>
         {% endif %}
       {% endif %}

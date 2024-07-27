@@ -123,21 +123,26 @@ def categoryitems(request, category_id):
     return render(request, "forsale/categoryitems.html", context)
 
 
-def item(request, item_id):
+def add_item_context(request, item_id, context):
     user = request.user
 
     item = Items.objects.get(pk=item_id)
-    context = {
-        "item": item,
-        "owner_fullname": item.owner.display_name(),
-    }
+    context["item"] = item
+    context["owner_fullname"] = item.owner.display_name()
+
     if user.is_authenticated:
         userinfo = Userinfo.objects.get(user=user)
-        try:
-            user_offer = item.offers.get(userinfo=userinfo)
-            context["user_offer"] = user_offer
-        except Offers.DoesNotExist:
-            pass
+        for offer in item.offers.all():
+            if offer.accepted:
+                context["accepted_offer"] = offer
+            if offer.userinfo == userinfo:
+                context["user_offer"] = offer
+    return item
+
+
+def item(request, item_id):
+    context = { }
+    item = add_item_context(request, item_id, context)
 
     itembidform = ItemBidForm(request.POST)
     context["itembidform"] = itembidform
@@ -157,12 +162,8 @@ def itemremove(request, item_id):
 
 def itembid(request, item_id):
     user = request.user
-    item = Items.objects.get(pk=item_id)
-    context = {
-        "item": item,
-        "owner_fullname": item.owner.display_name(),
-    }
-    add_context(request, context)
+    context = { }
+    item = add_item_context(request, item_id, context)
 
     if not user.is_authenticated:
         # Apparently signed out while looking at this.
@@ -170,6 +171,7 @@ def itembid(request, item_id):
         return render(request, "forsale/item.html", context)
 
     userinfo = Userinfo.objects.get(user=user)
+    # TODO check for address and require it if missing.
     try:
         # Shouldn't already be an offer, but check.
         user_offer = item.offers.get(userinfo=userinfo)
@@ -188,18 +190,15 @@ def itembid(request, item_id):
                     accepted=False
                 )
                 context["user_offer"] = user_offer
+    add_context(request, context)
 
     return render(request, "forsale/item.html", context)
 
 
 def itemwithdraw(request, item_id):
     user = request.user
-    item = Items.objects.get(pk=item_id)
-    context = {
-        "item": item,
-        "owner_fullname": item.owner.display_name(),
-    }
-    add_context(request, context)
+    context = { }
+    iten = add_item_context(request, item_id, context)
 
     if not user.is_authenticated:
         # Apparently signed out while looking at this.
@@ -213,6 +212,28 @@ def itemwithdraw(request, item_id):
     except Offers.DoesNotExist:
         # No offer for some reason, do nothing.
         pass
+
+    add_context(request, context)
+
+    return render(request, "forsale/item.html", context)
+
+
+def offeraccept(request, item_id, offer_id):
+    user = request.user
+    context = { }
+    item = add_item_context(request, item_id, context)
+
+    if not user.is_authenticated:
+        # Apparently signed out while looking at this.
+        # Redisplay signed out item page.
+        return render(request, "forsale/item.html", context)
+
+    offer = Offers.objects.get(pk=offer_id)
+    offer.accepted = True
+    offer.save()
+
+    context["accepted_offer"] = offer
+    add_context(request, context)
 
     return render(request, "forsale/item.html", context)
 
