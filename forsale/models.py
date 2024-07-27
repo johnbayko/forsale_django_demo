@@ -40,7 +40,6 @@ class Userinfo(models.Model):
         return " ".join(namelist)
 
 
-
 class Items(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(Userinfo, on_delete=models.PROTECT)
@@ -53,6 +52,7 @@ class Items(models.Model):
 
     sold = models.BooleanField(default=False, null=False)
     removed = models.BooleanField(default=False, null=False)
+
 
 class Offers(models.Model):
     item = models.ForeignKey(Items, related_name="offers", on_delete=models.PROTECT)

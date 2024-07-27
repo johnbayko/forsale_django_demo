@@ -8,8 +8,8 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
-from .forms.ForsaleForms import NewItemForm
-from .models import Categories, Items, Userinfo
+from .forms.ForsaleForms import ItemBidForm, NewItemForm
+from .models import Categories, Items, Offers, Userinfo
 
 # Add common context for views:
 #
@@ -32,11 +32,10 @@ def add_context(request, context):
         context["origin_path"] = request.path
 
     user = request.user
-
-    # userinfo should always be 1:1 to user.
-    userinfo = user.userinfo_set.all()[0]
-
     if user.is_authenticated:
+        # userinfo should always be 1:1 to user.
+        userinfo = user.userinfo_set.all()[0]
+
         highlight_bg_color = "#FFD700" # Gold
         signinout_bg_color = "#90EE90" # LightGreen
 
@@ -125,15 +124,25 @@ def categoryitems(request, category_id):
 
 
 def item(request, item_id):
+    user = request.user
+
     item = Items.objects.get(pk=item_id)
     context = {
         "item": item,
         "owner_fullname": item.owner.display_name(),
     }
-    add_context(request, context)
-    user = request.user
     if user.is_authenticated:
-        context["user"] = user
+        userinfo = Userinfo.objects.get(user=user)
+        try:
+            user_offer = item.offers.get(userinfo=userinfo)
+            context["user_offer"] = user_offer
+        except Offers.DoesNotExist:
+            pass
+
+    itembidform = ItemBidForm(request.POST)
+    context["itembidform"] = itembidform
+
+    add_context(request, context)
 
     return render(request, "forsale/item.html", context)
 
@@ -146,6 +155,68 @@ def itemremove(request, item_id):
     return HttpResponseRedirect(reverse(f"forsale:item", args=[item_id]))
 
 
+def itembid(request, item_id):
+    user = request.user
+    item = Items.objects.get(pk=item_id)
+    context = {
+        "item": item,
+        "owner_fullname": item.owner.display_name(),
+    }
+    add_context(request, context)
+
+    if not user.is_authenticated:
+        # Apparently signed out while looking at this.
+        # Redisplay signed out item page.
+        return render(request, "forsale/item.html", context)
+
+    userinfo = Userinfo.objects.get(user=user)
+    try:
+        # Shouldn't already be an offer, but check.
+        user_offer = item.offers.get(userinfo=userinfo)
+        context["user_offer"] = user_offer
+    except Offers.DoesNotExist:
+        itembidform = ItemBidForm(request.POST)
+        context["itembidform"] = itembidform
+
+        if itembidform.is_valid():
+            price = int(itembidform.cleaned_data['price'] * 100)
+            if price > 0:
+                user_offer = Offers.objects.create(
+                    item=item,
+                    userinfo=userinfo,
+                    price=price,
+                    accepted=False
+                )
+                context["user_offer"] = user_offer
+
+    return render(request, "forsale/item.html", context)
+
+
+def itemwithdraw(request, item_id):
+    user = request.user
+    item = Items.objects.get(pk=item_id)
+    context = {
+        "item": item,
+        "owner_fullname": item.owner.display_name(),
+    }
+    add_context(request, context)
+
+    if not user.is_authenticated:
+        # Apparently signed out while looking at this.
+        # Redisplay signed out item page.
+        return render(request, "forsale/item.html", context)
+
+    userinfo = Userinfo.objects.get(user=user)
+    try:
+        user_offer = item.offers.get(userinfo=userinfo)
+        user_offer.delete()
+    except Offers.DoesNotExist:
+        # No offer for some reason, do nothing.
+        pass
+
+    return render(request, "forsale/item.html", context)
+
+
 def useritems(request, user_id):
     if not request.user.is_authenticated:
         # Apparently signed out while looking at this.
@@ -154,9 +225,7 @@ def useritems(request, user_id):
     user = request.user
     userinfo = Userinfo.objects.get(user=user)
 
-    context = {
-        "user": user
-    }
+    context = { }
 
     refreshed_view = "refreshed_view" in request.GET
 
@@ -194,7 +263,6 @@ def newitem(request, user_id):
     userinfo = Userinfo.objects.get(user=user)
 
     context = {
-        "user": user,
         "newitemform": NewItemForm(),
     }
     add_context(request, context)
@@ -210,9 +278,7 @@ def newitem_done(request, user_id):
     user = request.user
     userinfo = Userinfo.objects.get(user=user)
 
-    context = {
-        "user": user
-    }
+    context = { }
 
     newitemform = NewItemForm(request.POST)
     context["newitemform"] = newitemform

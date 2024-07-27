@@ -40,41 +40,93 @@
         <td></td>
       </tr>
     {% endif %}
+    {% if item.offers.count > 0 %}
+      <tr>
+        <td>
+          Offers
+        </td>
+        <td>
+          {{ item.offers.count }}
+        </td>
+      </tr>
+    {% endif %}
   </table>
-  {% if user %}
-    {% if not item.removed %}
-      {% if user.id == item.owner.user.id %}
+  {% if user.is_authenticated %}
+    {% if user.id == item.owner.user.id %}
+      {% if not item.removed %}
         <form method="POST">
           {% csrf_token %}
           <button type="submit" formaction="{% url 'forsale:itemremove' item.id %}">
             Remove
           </button>
         </form>
+        {% if item.offers.count > 0 %}
+          <p>Offers:</p>
+          <table>
+            <tr style="background-color:{{ highlight_bg_color }}">
+              <th>Who</th>
+              <th id="price">Price</th>
+              <th>Address</th>
+            </tr>
+            {% for offer in item.offers.all %}
+              <tr>
+                <td>
+                  {{ offer.userinfo.display_name }}
+                </td>
+                <td>
+                  {{ offer.price|format_cents }}
+                </td>
+                <td>
+                  {{ offer.address }}
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
+        {% endif %}
+      {% endif %}
+    {% else %}
+      <!-- Logged in, but different user. -->
+      {% if user_offer %}
+        <!-- User made an offer -->
+        <form method="POST">
+          {% csrf_token %}
+          <p></p>
+          <table>
+            <tr>
+              <td>
+                <button type="submit" formaction="{% url 'forsale:itemwithdraw' item.id %}">
+                  Withdraw bid
+                </button>
+              </td>
+              <td>
+                {{ user_offer.price|format_cents }}
+              </td>
+            </tr>
+          </table>
+        </form>
+      {% else %}
+        <!-- User has not made an offer -->
+        <form method="POST">
+          {% csrf_token %}
+          <p></p>
+          <table>
+            <tr>
+              <td>
+                <button type="submit" formaction="{% url 'forsale:itembid' item.id %}">
+                  Bid
+                </button>
+              </td>
+              <td>
+                <input type="text" id="price" name="price" value="0.00">
+              </td>
+            </tr>
+          </table>
+        </form>
       {% endif %}
     {% endif %}
-    {% if item.offers.count > 0 %}
-      <p>Offers:</p>
-      <table>
-        <tr style="background-color:{{ highlight_bg_color }}">
-          <th>Who</th>
-          <th id="price">Price</th>
-          <th>Address</th>
-        </tr>
-        {% for offer in item.offers.all %}
-          <tr>
-            <td>
-              {{ offer.userinfo.display_name }}
-            </td>
-            <td>
-              {{ offer.price|format_cents }}
-            </td>
-            <td>
-              {{ offer.address }}
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
-    {% endif %}
+  {% else %}
+    <!-- Not logged in -->
+    <p>Sign in to bid.</p>
   {% endif %}
   <p>
     <a href="{% url 'forsale:categoryitems' item.category.id %}">

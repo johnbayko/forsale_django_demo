@@ -14,3 +14,8 @@ class NewItemForm(forms.Form):
         label="Price $", min_value=0.0
     )
 
+class ItemBidForm(forms.Form):
+    price = forms.FloatField(
+        label="Price $", min_value=0.0
+    )
+
