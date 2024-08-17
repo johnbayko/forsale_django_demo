@@ -35,10 +35,12 @@ def add_context(request, context):
     if user.is_authenticated:
         # userinfo should always be 1:1 to user.
         userinfo = user.userinfo_set.all()[0]
+        # Add to context to save db access?
 
         highlight_bg_color = "#FFD700" # Gold
         signinout_bg_color = "#90EE90" # LightGreen
 
+        # TODO Maybe use user.username in the templates.
         context["user_username"] = user.username
         context["user_fullname"] = userinfo.display_name()
 
@@ -128,7 +130,7 @@ def add_item_context(request, item_id, context):
 
     item = Items.objects.get(pk=item_id)
     context["item"] = item
-    context["owner_fullname"] = item.owner.display_name()
+    context["owner_fullname"] = item.owner.display_name
 
     if user.is_authenticated:
         userinfo = Userinfo.objects.get(user=user)
@@ -187,7 +189,8 @@ def itembid(request, item_id):
                     item=item,
                     userinfo=userinfo,
                     price=price,
-                    accepted=False
+                    accepted=False,
+#                    delivered=False,
                 )
                 context["user_offer"] = user_offer
     add_context(request, context)
@@ -314,7 +317,6 @@ def newitem_done(request, user_id):
         category = newitemform.cleaned_data['category'],
         description = newitemform.cleaned_data['description'],
         price = int(newitemform.cleaned_data['price'] * 100),
-        sold = False,
         removed = False
     )
     return HttpResponseRedirect(reverse(f"forsale:useritems", args=[user.id]))
