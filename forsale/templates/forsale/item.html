@@ -54,12 +54,14 @@
   {% if user.is_authenticated %}
     {% if user.id == item.owner.user.id %}
       {% if not item.removed %}
-        <form method="POST">
-          {% csrf_token %}
-          <button type="submit" formaction="{% url 'forsale:itemremove' item.id %}">
-            Remove
-          </button>
-        </form>
+        {% if not item.sold %}
+          <form method="POST">
+            {% csrf_token %}
+            <button type="submit" formaction="{% url 'forsale:itemremove' item.id %}">
+              Remove
+            </button>
+          </form>
+        {% endif %}
         {% if item.offers.count > 0 %}
           <form method="POST">
             {% csrf_token %}
@@ -76,6 +78,9 @@
                   <td>
                     {% if offer.accepted %}
                       Accepted
+                      <button type="submit" formaction="{% url 'forsale:offerunaccept' item.id offer.id %}">
+                        Withdraw
+                      </button>
                     {% else %}
                       {% if not accepted_offer %}
                         <button type="submit" formaction="{% url 'forsale:offeraccept' item.id offer.id %}">
@@ -139,6 +144,11 @@
         </form>
       {% endif %}
     {% endif %}
+    <p>
+      <a href="{% url 'forsale:useritems' item.owner.user.id %}">
+        All items for {{ user_fullname }}
+      </a>
+    </p>
   {% else %}
     <!-- Not logged in -->
     <p>Sign in to bid.</p>
@@ -146,11 +156,6 @@
   <p>
     <a href="{% url 'forsale:categoryitems' item.category.id %}">
       All items for category {{item.category.name }}
-    </a>
-  </p>
-  <p>
-    <a href="{% url 'forsale:useritems' item.owner.user.id %}">
-      All items for {{ user_fullname }}
     </a>
   </p>
   <p>

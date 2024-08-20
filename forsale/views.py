@@ -42,7 +42,7 @@ def add_context(request, context):
 
         # TODO Maybe use user.username in the templates.
         context["user_username"] = user.username
-        context["user_fullname"] = userinfo.display_name()
+        context["user_fullname"] = userinfo.display_name
 
     else:
         highlight_bg_color = "#90EE90" # LightGreen
@@ -159,6 +159,11 @@ def itemremove(request, item_id):
     item.removed = True
     item.save()
 
+    # Don't return to this view, make sure actual origin_path is in context.
+    context = {
+        "origin_path": reverse(f"forsale:item", args=[item_id])
+    }
+    add_context(request, context)
     return HttpResponseRedirect(reverse(f"forsale:item", args=[item_id]))
 
 
@@ -193,6 +198,9 @@ def itembid(request, item_id):
 #                    delivered=False,
                 )
                 context["user_offer"] = user_offer
+
+    # Don't return to this view, make sure actual origin_path is in context.
+    context["origin_path"] = reverse(f"forsale:item", args=[item_id])
     add_context(request, context)
 
     return render(request, "forsale/item.html", context)
@@ -201,21 +209,26 @@ def itembid(request, item_id):
 def itemwithdraw(request, item_id):
     user = request.user
     context = { }
-    iten = add_item_context(request, item_id, context)
+    item = add_item_context(request, item_id, context)
 
     if not user.is_authenticated:
         # Apparently signed out while looking at this.
         # Redisplay signed out item page.
         return render(request, "forsale/item.html", context)
 
-    userinfo = Userinfo.objects.get(user=user)
-    try:
-        user_offer = item.offers.get(userinfo=userinfo)
-        user_offer.delete()
-    except Offers.DoesNotExist:
-        # No offer for some reason, do nothing.
-        pass
+    if not item.sold:
+        # Can still withdraw offer.
+        userinfo = Userinfo.objects.get(user=user)
+        try:
+            user_offer = item.offers.get(userinfo=userinfo)
+            user_offer.delete()
+            del context["user_offer"]
+        except Offers.DoesNotExist:
+            # No offer for some reason, do nothing.
+            pass
 
+    # Don't return to this view, make sure actual origin_path is in context.
+    context["origin_path"] = reverse(f"forsale:item", args=[item_id])
     add_context(request, context)
 
     return render(request, "forsale/item.html", context)
@@ -237,6 +250,36 @@ def offeraccept(request, item_id, offer_id):
 
     context["accepted_offer"] = offer
     add_context(request, context)
+
+    # Item sold context has changed, reload.
+    # item.refresh_from_db() doesn't seem to update annotated column.
+    item = Items.objects.get(pk=item_id)
+    context["item"] = item
+
+    return render(request, "forsale/item.html", context)
+
+
+def offerunaccept(request, item_id, offer_id):
+    user = request.user
+    context = { }
+    item = add_item_context(request, item_id, context)
+
+    if not user.is_authenticated:
+        # Apparently signed out while looking at this.
+        # Redisplay signed out item page.
+        return render(request, "forsale/item.html", context)
+
+    offer = Offers.objects.get(pk=offer_id)
+    offer.accepted = False
+    offer.save()
+
+    del context["accepted_offer"]
+    add_context(request, context)
+
+    # Item sold context has changed, reload.
+    # item.refresh_from_db() doesn't seem to update annotated column.
+    item = Items.objects.get(pk=item_id)
+    context["item"] = item
 
     return render(request, "forsale/item.html", context)
 
@@ -319,6 +362,9 @@ def newitem_done(request, user_id):
         price = int(newitemform.cleaned_data['price'] * 100),
         removed = False
     )
+    # Don't return to this view, make sure actual origin_path is in context.
+    context["origin_path"] = reverse(f"forsale:useritems", args=[user.id])
+    add_context(request, context)
     return HttpResponseRedirect(reverse(f"forsale:useritems", args=[user.id]))
 
 def signin(request, origin_path):
