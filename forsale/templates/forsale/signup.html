@@ -9,76 +9,7 @@
 
     <form method="post" autocomplete="on">
       {% csrf_token %}
-      <p>Required:</p>
-      <table>
-      <tr>
-          <td>
-            <u><label for="username">Username</label></u>
-          </td>
-          <td>
-            <input type="text" id="username" name="username" value="{{ username }}">
-          </td>
-      </tr>
-      <tr>
-          <td>
-            <u><label for="password">Password</label></u>
-          </td>
-          <td>
-            <input type="password" id="password" name="password" value="{{ password }}">
-          </td>
-      </tr>
-      <tr>
-          <td>
-            <u><label for="password">Retype password</label></u>
-          </td>
-          <td>
-            <input type="password" id="password2" name="password2" value="{{ password2 }}">
-          </td>
-      </tr>
-      <tr>
-          <td>
-            <u><label for="email">Email</label></u>
-          </td>
-          <td>
-            <input type="text" id="email" name="email" value="{{ email }}">
-          </td>
-      </tr>
-      </table>
-      <p>Optional:</p>
-      <table>
-      <tr>
-          <td>
-            Name:
-          </td>
-          <td>
-          </td>
-      </tr>
-      <tr>
-          <td>
-            <label for="first_name">First</label>
-          </td>
-          <td>
-            <input type="text" id="first_name" name="first_name" value="{{ first_name }}">
-          </td>
-      </tr>
-      <tr>
-          <td>
-            <label for="last_name">Last</label>
-          </td>
-          <td>
-            <input type="text" id="last_name" name="last_name" value="{{ last_name }}">
-          </td>
-      </tr>
-      <tr>
-          <td>
-            <u><label for="address">Address</label></u>
-          </td>
-          <td>
-            <input type="text" id="address" name="address" value="{{ address }}">
-          </td>
-      </tr>
-      </table>
-
+      {% include 'forsale/userinfo.html' %}
       <p>
         <button type="submit" formaction="{% url 'forsale:signup_done' origin_path %}">
           Add user

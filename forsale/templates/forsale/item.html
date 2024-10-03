@@ -24,10 +24,14 @@
       <td>Added</td>
       <td>{{ item.created|date }}</td>
     </tr>
-    {% if item.sold %}
+    {% if accepted_offer %}
       <tr id="solditem">
         <td>
-          Sold
+          {% if accepted_offer.delivered %}
+            Delivered
+          {% else %}
+            Sold
+          {% endif %}
         </td>
         <td></td>
       </tr>
@@ -54,7 +58,7 @@
   {% if user.is_authenticated %}
     {% if user.id == item.owner.user.id %}
       {% if not item.removed %}
-        {% if not item.sold %}
+        {% if not accepted_offer %}
           <form method="POST">
             {% csrf_token %}
             <button type="submit" formaction="{% url 'forsale:itemremove' item.id %}">
@@ -76,17 +80,24 @@
               {% for offer in item.offers.all %}
                 <tr>
                   <td>
-                    {% if offer.accepted %}
-                      Accepted
-                      <button type="submit" formaction="{% url 'forsale:offerunaccept' item.id offer.id %}">
-                        Withdraw
-                      </button>
-                    {% else %}
-                      {% if not accepted_offer %}
-                        <button type="submit" formaction="{% url 'forsale:offeraccept' item.id offer.id %}">
-                          Accept
+                    {% if not offer.delivered %}
+                      {% if offer.accepted %}
+                        Accepted
+                        <button type="submit" formaction="{% url 'forsale:offerdelivered' item.id offer.id %}">
+                          Delivered
                         </button>
+                        <button type="submit" formaction="{% url 'forsale:offerunaccept' item.id offer.id %}">
+                          Withdraw
+                        </button>
+                      {% else %}
+                        {% if not accepted_offer %}
+                          <button type="submit" formaction="{% url 'forsale:offeraccept' item.id offer.id %}">
+                            Accept
+                          </button>
+                        {% endif %}
                       {% endif %}
+                    {% else %}
+                      Delivered
                     {% endif %}
                   </td>
                   <td>

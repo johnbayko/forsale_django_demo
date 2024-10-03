@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, F
 from django.contrib.auth.models import User
 
 class Categories(models.Model):
@@ -68,6 +68,10 @@ class Items(models.Model):
     # Price is in cents. Barring hyperinflation, should be big enough.
     price = models.IntegerField()
 
+    # An item can be removed at any time, since it's only a flag.
+    # After an accepted offer, implies acceptance was withdradn.
+    # After delivery, owner just doesn't want to see it on the site any more.
+    # Maybe a removed item view in the future.
     removed = models.BooleanField(default=False, null=False)
 
     objects = ItemsManager()
@@ -83,7 +87,7 @@ class Offers(models.Model):
     accepted = models.BooleanField(default=False, null=False)
 
     # Item delivered. Only if accepted (imlies only one).
-#    delivered = models.BooleanField(default=False, null=False)
+    delivered = models.BooleanField(default=False, null=False)
 
     class Meta:
         constraints = [
@@ -93,10 +97,10 @@ class Offers(models.Model):
                 condition=Q(accepted=True),
                 name='accepted_unique'
             ),
-#            # Can be delivered only if accepted.
-#            models.CheckConstraint(
-#                check=Q(delivered=F('accepted')) | Q(delivered=False),
-#                name='delivered_accepted'
-#            ).
+            # Can be delivered only if accepted.
+            models.CheckConstraint(
+                check=Q(delivered=F('accepted')) | Q(delivered=False),
+                name='delivered_accepted'
+            ),
         ]
 

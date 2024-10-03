@@ -195,13 +195,14 @@ def itembid(request, item_id):
                     userinfo=userinfo,
                     price=price,
                     accepted=False,
-#                    delivered=False,
+                    delivered=False,
                 )
                 context["user_offer"] = user_offer
 
+    add_context(request, context)
+
     # Don't return to this view, make sure actual origin_path is in context.
     context["origin_path"] = reverse(f"forsale:item", args=[item_id])
-    add_context(request, context)
 
     return render(request, "forsale/item.html", context)
 
@@ -249,6 +250,8 @@ def offeraccept(request, item_id, offer_id):
     offer.save()
 
     context["accepted_offer"] = offer
+    # Don't return to this view, make sure actual origin_path is in context.
+    context["origin_path"] = reverse(f"forsale:item", args=[item_id])
     add_context(request, context)
 
     # Item sold context has changed, reload.
@@ -270,16 +273,44 @@ def offerunaccept(request, item_id, offer_id):
         return render(request, "forsale/item.html", context)
 
     offer = Offers.objects.get(pk=offer_id)
-    offer.accepted = False
-    offer.save()
+    if not offer.delivered:
+        offer.accepted = False
+        offer.save()
 
-    del context["accepted_offer"]
-    add_context(request, context)
+        del context["accepted_offer"]
+        add_context(request, context)
 
-    # Item sold context has changed, reload.
-    # item.refresh_from_db() doesn't seem to update annotated column.
-    item = Items.objects.get(pk=item_id)
-    context["item"] = item
+        # Item sold context has changed, reload.
+        # item.refresh_from_db() doesn't seem to update annotated column.
+        item = Items.objects.get(pk=item_id)
+        context["item"] = item
+
+    # Don't return to this view, make sure actual origin_path is in context.
+    context["origin_path"] = reverse(f"forsale:item", args=[item_id])
+
+    return render(request, "forsale/item.html", context)
+
+
+def offerdelivered(request, item_id, offer_id):
+    user = request.user
+    context = { }
+    item = add_item_context(request, item_id, context)
+
+    if not user.is_authenticated:
+        # Apparently signed out while looking at this.
+        # Redisplay signed out item page.
+        return render(request, "forsale/item.html", context)
+
+    offer = Offers.objects.get(pk=offer_id)
+    context["accepted_offer"] = offer
+    if offer.accepted:
+        offer.delivered = True
+        offer.save()
+
+        add_context(request, context)
+
+    # Don't return to this view, make sure actual origin_path is in context.
+    context["origin_path"] = reverse(f"forsale:item", args=[item_id])
 
     return render(request, "forsale/item.html", context)
 

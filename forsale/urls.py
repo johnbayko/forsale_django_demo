@@ -17,6 +17,7 @@ urlpatterns = [
     path("item/<int:item_id>/withdraw/", views.itemwithdraw, name="itemwithdraw"),
     path("item/<int:item_id>/offer/<int:offer_id>/accept/", views.offeraccept, name="offeraccept"),
     path("item/<int:item_id>/offer/<int:offer_id>/unaccept/", views.offerunaccept, name="offerunaccept"),
+    path("item/<int:item_id>/offer/<int:offer_id>/delivered/", views.offerdelivered, name="offerdelivered"),
 
     path("signin/<path:origin_path>/", views.signin, name="signin"),
     path("signin_done/<path:origin_path>/", views.signin_done, name="signin_done"),
