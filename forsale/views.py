@@ -398,6 +398,99 @@ def newitem_done(request, user_id):
     add_context(request, context)
     return HttpResponseRedirect(reverse(f"forsale:useritems", args=[user.id]))
 
+
+def user(request, origin_path):
+    if not request.user.is_authenticated:
+        # Apparently signed out while looking at this.
+        return HttpResponseRedirect(origin_path)
+
+    user = request.user
+    userinfo = Userinfo.objects.get(user=user)
+
+    context = {
+        "origin_path": origin_path,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "address": userinfo.address,
+    }
+    add_context(request, context)
+
+    return render(request, "forsale/user.html", context)
+
+
+def user_done(request, origin_path):
+    if not request.user.is_authenticated:
+        # Apparently signed out while looking at this.
+        return HttpResponseRedirect(origin_path)
+
+    user = request.user
+    userinfo = Userinfo.objects.get(user=user)
+
+    context = {
+        "origin_path": origin_path,
+    }
+    add_context(request, context)
+
+    password = request.POST['password']
+    context['password'] = password
+
+    password2 = request.POST['password2']
+    context['password2'] = password2
+
+    first_name = request.POST['first_name']
+    context['first_name'] = first_name
+
+    last_name = request.POST['last_name']
+    context['last_name'] = last_name
+
+    email = request.POST['email']
+    context['email'] = email
+
+    # Address is optional, must be added when buying.
+    address = request.POST['address']
+    context['address'] = address
+
+    # Update info
+    user_changed = False
+
+    if password != '' and password2 != '':
+        if password != password2:
+            context['update_error'] = "Password wasn't the same both times, Not changed."
+            del context['password']
+            del context['password2']
+
+            return render(request, "forsale/user.html", context)
+
+        # Change password.
+        user.set_password(password)
+        user_changed = True
+
+    if email != "":
+        user.email = email
+        user_changed = True
+    if first_name != "":
+        user.first_name = first_name
+        user_changed = True
+    if last_name != "":
+        user.last_name = last_name
+        user_changed = True
+
+    if user_changed:
+        user.save()
+
+    user_changed = False
+
+    if address != "":
+        userinfo.address = address
+        user_changed = True
+
+    if user_changed:
+        userinfo.save()
+
+    return HttpResponseRedirect(origin_path)
+
+
 def signin(request, origin_path):
     context = {
         "origin_path": origin_path,

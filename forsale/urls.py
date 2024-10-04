@@ -19,6 +19,9 @@ urlpatterns = [
     path("item/<int:item_id>/offer/<int:offer_id>/unaccept/", views.offerunaccept, name="offerunaccept"),
     path("item/<int:item_id>/offer/<int:offer_id>/delivered/", views.offerdelivered, name="offerdelivered"),
 
+    path("user/<path:origin_path>/", views.user, name="user"),
+    path("user_done/<path:origin_path>/", views.user_done, name="user_done"),
+
     path("signin/<path:origin_path>/", views.signin, name="signin"),
     path("signin_done/<path:origin_path>/", views.signin_done, name="signin_done"),
     path("signout_done/<path:origin_path>/", views.signout_done, name="signout_done"),
