@@ -43,6 +43,7 @@ def add_context(request, context):
         # TODO Maybe use user.username in the templates.
         context["user_username"] = user.username
         context["user_fullname"] = userinfo.display_name
+        context["user_address"] = userinfo.address
 
     else:
         highlight_bg_color = "#90EE90" # LightGreen

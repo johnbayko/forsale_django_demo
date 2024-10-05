@@ -137,22 +137,31 @@
         </form>
       {% else %}
         <!-- User has not made an offer -->
-        <form method="POST">
-          {% csrf_token %}
-          <p></p>
-          <table>
-            <tr>
-              <td>
-                <button type="submit" formaction="{% url 'forsale:itembid' item.id %}">
-                  Bid
-                </button>
-              </td>
-              <td>
-                <input type="text" id="price" name="price" value="0.00">
-              </td>
-            </tr>
-          </table>
-        </form>
+        <!-- User must have an address to make an offer. -->
+        {% if user_address %}
+          <form method="POST">
+            {% csrf_token %}
+            <p></p>
+            <table>
+              <tr>
+                <td>
+                  <button type="submit" formaction="{% url 'forsale:itembid' item.id %}">
+                    Bid
+                  </button>
+                </td>
+                <td>
+                  <input type="text" id="price" name="price" value="0.00">
+                </td>
+              </tr>
+            </table>
+          </form>
+        {% else %}
+          <p>
+            <a href="{% url 'forsale:user' origin_path %}">
+              Must have an address to bid.
+            </a>
+          </p>
+        {% endif %}
       {% endif %}
     {% endif %}
     <p>
@@ -162,7 +171,11 @@
     </p>
   {% else %}
     <!-- Not logged in -->
-    <p>Sign in to bid.</p>
+    <p>
+      <a href="{% url 'forsale:signin' origin_path %}">
+        Sign in to bid.
+      </a>
+    </p>
   {% endif %}
   <p>
     <a href="{% url 'forsale:categoryitems' item.category.id %}">
